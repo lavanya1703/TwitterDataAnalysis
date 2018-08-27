@@ -72,7 +72,7 @@ select id as tweet_id,
      created_at as tweet_time,
      hashtags.text as hashtag,
      case when retweeted_status.text is not null then 'no' else 'yes' end as is_retweet,
-     text as tweet_text,
+     text as tweet_text
      from netlify_tweets
 lateral view explode(entities.hashtags) t1 as hashtags
 where upper(hashtags.text) in ("CMS","NETLIFY","JAMSTACK");;
