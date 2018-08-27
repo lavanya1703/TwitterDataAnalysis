@@ -1,0 +1,98 @@
+HIVE :
+
+------------------------
+
+create schema if not exists netlify_project;
+
+use netlify_project;
+
+set hive.input.dir.recursive=TRUE;
+set hive.mapred.supports.subdirectories=TRUE;
+set hive.supports.subdirectories=TRUE;
+set mapred.input.dir.recursive=TRUE;
+set mapred.map.tasks=5;
+
+
+add jar /usr/lib/hive/lib/json-serde-1.3.6-SNAPSHOT-jar-with-dependencies.jar;
+
+drop table if exists netlify_tweets;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS netlify_tweets (
+id BIGINT,
+created_at STRING,
+source STRING,
+favorited BOOLEAN,
+retweet_count INT,
+retweeted_status STRUCT<text:STRING,user:STRUCT<screen_name:STRING,name:STRING>>,
+entities STRUCT<urls:ARRAY<STRUCT<expanded_url:STRING>>,user_mentions:ARRAY<STRUCT<screen_name:STRING,name:STRING>>,hashtags:ARRAY<STRUCT<text:STRING>>>,
+text STRING,
+user STRUCT<screen_name:STRING,name:STRING,friends_count:INT,followers_count:INT,statuses_count:INT,verified:BOOLEAN,utc_offset:INT,time_zone:STRING>,
+in_reply_to_screen_name STRING
+)
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+LOCATION '/user/cloudera/netlify_tweets/'
+TBLPROPERTIES('serialization.null.format'='NULL');
+
+
+-----------------------------------
+USERS of netlify
+-----------------------------------
+
+drop table if exists netlify_users;
+
+create table if not exists netlify_users(screen_name string,name string,friends_count int,followers_count int,statuses_count int,verified boolean,utc_offset int,time_zone string)
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+TBLPROPERTIES('serialization.null.format'='NULL');
+
+
+insert overwrite table netlify_users 
+select 
+user.screen_name as user_screen_name,
+user.name as user_name,
+user.friends_count as following_count,
+user.followers_count as followers_count,
+user.statuses_count as statuses_count,
+user.verified ,
+user.utc_offset,
+user.time_zone
+from netlify_tweets;
+
+-------------------------------------------------------------------
+
+TWEETS_INFO of netlify
+--------------------------------------------------------------------
+
+create table if not exists tweets_info(id bigint,screen_name string,name string,friends_count int,followers_count int,statuses_count int,verified boolean,utc_offset int,time_zone string)
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+TBLPROPERTIES('serialization.null.format'='NULL');
+
+insert overwrite table tweets_info
+select id as tweet_id,
+	user.screen_name as user_name,
+     created_at as tweet_time,
+     hashtags.text as hashtag,
+     case when retweeted_status.text is not null then 'no' else 'yes' end as is_retweet,
+     text as tweet_text,
+     from netlify_tweets
+lateral view explode(entities.hashtags) t1 as hashtags
+where upper(hashtags.text) in ("CMS","NETLIFY","JAMSTACK");;
+
+
+------------------------------------------------------------------------
+USER FOLLOWER table 
+-----------------------------------------------------------------------
+
+Assume screen_name is unique for each user :
+
+create table user_following
+(user_screen_name string,
+user_follower string,
+followed_date string,
+un_followed_date string
+)
+row format delimited 
+fields terminated by "\t"
+;
+
+
+

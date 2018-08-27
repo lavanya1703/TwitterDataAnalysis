@@ -1,0 +1,30 @@
+Flume Setup Steps :
+
+1. Login to https://apps.twitter.com/
+   Create a Twitter App manually to obtain :
+	- Customer Key
+	- Customer Secret
+	- Access Token
+	- Access Token Secret
+
+2. Copy the twiter jar files from local into /usr/lib/flume-ng/lib/
+
+sudo cp flume-sources-1.0-SNAPSHOT.jar /usr/lib/flume-ng/lib
+sudo cp twitter4j-core-3.0.3.jar /usr/lib/flume-ng/lib
+sudo cp twitter4j-media-support-3.0.3.jar /usr/lib/flume-ng/lib
+sudo cp twitter4j-stream-3.0.3.jar /usr/lib/flume-ng/lib
+sudo cp flume-ng-core-1.7.0.jar /usr/lib/flume-ng/lib
+
+3. Copy twitter.conf file into /etc/flume-ng/conf/
+
+sudo cp twitter.conf /etc/flume-ng/conf
+
+4. Use the flume command to run Flume Agent. Use Ctrl+C to stop the agent.
+   File : flume_cmd
+
+5. Check for files in HDFS :
+
+/user/cloudera/netlify_tweets/
+
+
+

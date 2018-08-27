@@ -1,0 +1,6 @@
+TEST SQL for HIVE 
+
+--------------------------------------------------------------------------
+
+1.
+select * from netlify_tweets where user.screen_name='Netlify';

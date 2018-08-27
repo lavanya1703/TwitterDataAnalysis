@@ -1,0 +1,7 @@
+Login :
+
+su root
+password : ******
+
+
+flume-ng agent -c /etc/flume-ng/conf -f /etc/flume-ng/conf/twitter.conf -n TwitterAgent -Dflume.root.logger=INFO,console
