@@ -1,2 +1,2 @@
 # TwitterDataAnalysis
-[Readme](./Readme.docx)
+[Readme](./README.docx)
