@@ -4,3 +4,20 @@ TEST SQL for HIVE
 
 1.
 select * from netlify_tweets where user.screen_name='Netlify';
+
+2.
+SELECT id, text FROM tweets_info;
+
+3. 
+select count(id) from tweets_info;
+
+4.
+select screen_name,followers_count from netlify_users
+order by folowers_count desc;
+
+5. 
+SELECT screen_name, COUNT(*) AS total 
+FROM tweets_info
+WHERE is_retweet='yes'
+GROUP BY screen_name 
+ORDER BY total DESC;
